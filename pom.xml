@@ -10,7 +10,7 @@
     </parent>
     <groupId>io.github.inbrackets</groupId>
     <artifactId>CoffeeShop</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>v1.0.0</version>
     <name>CoffeeShop</name>
     <description>CoffeeShop</description>
     <properties>
