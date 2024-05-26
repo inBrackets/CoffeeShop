@@ -15,10 +15,10 @@ public class CoffeeController {
 
     public CoffeeController() {
         coffees.addAll(List.of(
-                new Coffee("Café Cereza"),
-                new Coffee("Café Ganador"),
-                new Coffee("Café Lareño"),
-                new Coffee("Café Três Pontas")
+                new Coffee("1", "Café Cereza"),
+                new Coffee("2", "Café Ganador"),
+                new Coffee("3", "Café Lareño"),
+                new Coffee("4", "Café Três Pontas")
         ));
     }
 
