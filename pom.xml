@@ -36,6 +36,16 @@
     </dependencies>
 
     <build>
+<!--        https://stackoverflow.com/questions/34519759/application-version-does-not-show-up-in-spring-boot-banner-txt-->
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>application.properties</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
