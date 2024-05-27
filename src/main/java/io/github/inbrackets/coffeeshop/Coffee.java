@@ -1,14 +1,26 @@
 package io.github.inbrackets.coffeeshop;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.util.UUID;
 
+@Entity
 public class Coffee {
-    private final String id;
+
+    @Id
+    private String id;
     private String name;
 
     public Coffee(String id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Coffee() {
+
     }
 
     public Coffee(String name) {
@@ -19,6 +31,10 @@ public class Coffee {
         return id;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -26,4 +42,5 @@ public class Coffee {
     public void setName(String name) {
         this.name = name;
     }
+
 }
