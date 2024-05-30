@@ -29,11 +29,11 @@ public class CoffeeController {
     }
 
     @PostMapping
-    Coffee postCoffee(@RequestBody Coffee coffee) {
+    ResponseEntity<Coffee> postCoffee(@RequestBody Coffee coffee) {
         if (coffee.getId() == null || coffee.getId().isEmpty()) {
             coffee.setId(UUID.randomUUID().toString());
         }
-        return coffeeRepository.save(coffee);
+        return new ResponseEntity<>(coffeeRepository.save(coffee), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

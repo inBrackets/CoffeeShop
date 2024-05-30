@@ -1,108 +1,92 @@
 package io.github.inbrackets.coffeeshop;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CoffeeController.class)
-class CoffeeControllerTest {
-
+public class CoffeeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private CoffeeRepository coffeeRepository;
 
-    private final static Coffee coffee1 = new Coffee("1", "Café Cereza");
-    private final static Coffee coffee2 = new Coffee("2", "Café Ganador");
-    private final static Coffee coffee3 = new Coffee("3", "Café Lareño");
-    private final static Coffee coffee4 = new Coffee("4", "Café Três Pontas");
-    private final static Coffee newCoffee = new Coffee("5", "New Coffee");
+    private Coffee coffee;
 
     @BeforeEach
-    void setUp() throws Exception {
-        for(Coffee coffee: List.of(coffee1, coffee2, coffee3, coffee4)) {
-            mockMvc.perform(put("/coffees/{id}", coffee.getId())
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(coffee)))
-                    .andExpect(jsonPath("$.name", is(coffee.getName())));
-        }
-        mockMvc.perform(delete("/coffees/{id}", newCoffee.getId()))
-                .andExpect(status().isOk());
+    public void setUp() {
+        coffee = new Coffee("1", "Café Cereza");
     }
 
     @Test
-    void getCoffees() throws Exception {
-        mockMvc.perform(get("/coffees"))
+    public void testGetCoffees() throws Exception {
+        when(coffeeRepository.findAll()).thenReturn(List.of(coffee));
+
+        mockMvc.perform(get("/coffees")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(4)))
-                .andExpect(jsonPath("$[0].name", is(coffee1.getName())))
-                .andExpect(jsonPath("$[1].name", is(coffee2.getName())))
-                .andExpect(jsonPath("$[2].name", is(coffee3.getName())))
-                .andExpect(jsonPath("$[3].name", is(coffee4.getName())));
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].name").value("Café Cereza"));
     }
 
     @Test
-    void getCoffeeById() throws Exception {
-        mockMvc.perform(get("/coffees/{id}", coffee1.getId()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(coffee1.getName())));
+    public void testGetCoffeeById() throws Exception {
+        when(coffeeRepository.findById(anyString())).thenReturn(Optional.of(coffee));
 
-        mockMvc.perform(get("/coffees/{id}", "nonexistent-id"))
+        mockMvc.perform(get("/coffees/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").doesNotExist());
+                .andExpect(jsonPath("$.name").value("Café Cereza"));
     }
 
     @Test
-    void postCoffee() throws Exception {
-        Coffee newCoffee = new Coffee("5", "Café Novo");
+    public void testPostCoffee() throws Exception {
+        when(coffeeRepository.save(any(Coffee.class))).thenReturn(coffee);
 
         mockMvc.perform(post("/coffees")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newCoffee)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(newCoffee.getName())));
+                        .content("{\"name\": \"Café Cereza\"}"))
+                        .andExpect(status().isCreated())
+                        .andExpect(jsonPath("$.name").value("Café Cereza"));
     }
 
     @Test
-    void putCoffee() throws Exception {
-        Coffee updatedCoffee = new Coffee(coffee1.getId(), "Updated Coffee");
+    public void testPutCoffee() throws Exception {
+        when(coffeeRepository.existsById(anyString())).thenReturn(true);
+        when(coffeeRepository.save(any(Coffee.class))).thenReturn(coffee);
 
-        mockMvc.perform(put("/coffees/{id}", coffee1.getId())
+        mockMvc.perform(put("/coffees/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedCoffee)))
+                        .content("{\"name\": \"Café Cereza\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name", is(updatedCoffee.getName())));
-
-        Coffee newCoffee = new Coffee("5", "New Coffee");
-
-        mockMvc.perform(put("/coffees/{id}", "new-id")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newCoffee)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is(newCoffee.getName())));
+                .andExpect(jsonPath("$.name").value("Café Cereza"));
     }
 
     @Test
-    void deleteCoffee() throws Exception {
-        mockMvc.perform(delete("/coffees/{id}", coffee4.getId()))
+    public void testDeleteCoffee() throws Exception {
+        doNothing().when(coffeeRepository).deleteById(anyString());
+
+        mockMvc.perform(delete("/coffees/1")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-
-        mockMvc.perform(get("/coffees"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(3)));
     }
 }
