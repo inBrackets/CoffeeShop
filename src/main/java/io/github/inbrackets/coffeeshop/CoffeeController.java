@@ -47,7 +47,7 @@ public class CoffeeController {
         return coffeeRepository.findById(id);
     }
 
-    @Operation(summary = "Create a new Tutorial", tags = {"post"})
+    @Operation(summary = "Create a new Coffee", tags = {"post"})
     @ApiResponses({
             @ApiResponse(responseCode = "201", content = {
                     @Content(schema = @Schema(implementation = Coffee.class), mediaType = "application/json")}),
