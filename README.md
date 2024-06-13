@@ -19,6 +19,11 @@ Use the jps tool to query running Java™ processes. The tool shows information 
 jps -h
 ```
 
+### Swagger
+```
+http://localhost:8080/swagger-ui/index.html
+```
+
 ## Releases
 
 ### master
